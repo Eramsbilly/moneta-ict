@@ -4,7 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-const authRoutes = require("./routes/auth");
+const pool = require("./db");
 
 const app = express();
 
@@ -25,7 +25,14 @@ app.get("/health", (req, res) => {
   res.json({ status: "Backend running" });
 });
 
-app.use("/api/auth", authRoutes);
+app.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Database not connected" });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
